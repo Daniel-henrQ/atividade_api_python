@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Localização</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    input[readonly] {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .coords-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn-secondary {
+      background-color: var(--surface-hover);
+      color: var(--text);
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      padding: 10px;
+    }
+
+    .btn-secondary:hover {
+      background-color: #475569;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-msg {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+
+    .status-msg.success {
+      display: block;
+      background-color: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-msg.error {
+      display: block;
+      background-color: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="card">
+    <div class="header">
+      <h1>Check-in de Localização</h1>
+      <p>Preencha o nome do local e capture suas coordenadas para registrar.</p>
+    </div>
+
+    <form id="locationForm">
+      <div class="form-group">
+        <label for="local">Nome do Local</label>
+        <input 
+          type="text" 
+          id="local" 
+          name="entry.537691558" 
+          placeholder="Ex: Matriz, Filial Centro, Cliente X..." 
+          required 
+        />
+      </div>
+
+      <button type="button" id="btnGeo" class="btn btn-secondary">
+        📍 Capturar Localização Atual
+      </button>
+
+      <div class="coords-grid">
+        <div class="form-group">
+          <label for="latitude">Latitude</label>
+          <input 
+            type="text" 
+            id="latitude" 
+            name="entry.1135377561" 
+            placeholder="-22.9068" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="longitude">Longitude</label>
+          <input 
+            type="text" 
+            id="longitude" 
+            name="entry.1960109342" 
+            placeholder="-43.1729" 
+            required 
+          />
+        </div>
+      </div>
+
+      <button type="submit" id="btnSubmit" class="btn btn-primary">
+        <span class="spinner" id="spinner"></span>
+        <span id="btnText">Enviar Registro</span>
+      </button>
+
+      <div id="statusMsg" class="status-msg"></div>
+    </form>
+  </main>
+
+  <script>
+    // Endpoint extraído do seu Google Forms (trocando /viewform por /formResponse)
+    const GOOGLE_FORM_ACTION = 
+      "https://docs.google.com/forms/d/e/1FAIpQLSdJtnGIACm1_R6OKbfwqSvZgoAUD8hG8eGEjH__W-Qs7tJ61g/formResponse";
+
+    const form = document.getElementById("locationForm");
+    const btnGeo = document.getElementById("btnGeo");
+    const btnSubmit = document.getElementById("btnSubmit");
+    const btnText = document.getElementById("btnText");
+    const spinner = document.getElementById("spinner");
+    const statusMsg = document.getElementById("statusMsg");
+
+    const inputLocal = document.getElementById("local");
+    const inputLat = document.getElementById("latitude");
+    const inputLng = document.getElementById("longitude");
+
+    // Helper para exibir feedbacks visuais
+    function showStatus(message, type) {
+      statusMsg.textContent = message;
+      statusMsg.className = `status-msg ${type}`;
+    }
+
+    // Captura de Geolocalização via Browser API
+    function getCoordinates() {
+      if (!("geolocation" in navigator)) {
+        showStatus("Geolocalização não suportada neste navegador.", "error");
+        return;
+      }
+
+      btnGeo.disabled = true;
+      btnGeo.textContent = "⏳ Obtendo GPS...";
+      statusMsg.style.display = "none";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          inputLat.value = position.coords.latitude.toFixed(6);
+          inputLng.value = position.coords.longitude.toFixed(6);
+          btnGeo.disabled = false;
+          btnGeo.textContent = "✅ Localização Atualizada";
+        },
+        (error) => {
+          let errorText = "Não foi possível obter a localização.";
+          if (error.code === error.PERMISSION_DENIED) {
+            errorText = "Permissão de localização negada. Libere o acesso no navegador.";
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            errorText = "Sinal de GPS indisponível no momento.";
+          } else if (error.code === error.TIMEOUT) {
+            errorText = "Tempo esgotado ao buscar coordenadas.";
+          }
+          showStatus(errorText, "error");
+          btnGeo.disabled = false;
+          btnGeo.textContent = "📍 Tentar Novamente";
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // Dispara automaticamente ao abrir a página (opcional, facilita o uso mobile)
+    window.addEventListener("DOMContentLoaded", () => {
+      // Preenche caso venha via URL params (compatibilidade com seu link original)
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("local")) inputLocal.value = params.get("local");
+      if (params.get("latitude")) inputLat.value = params.get("latitude");
+      if (params.get("longitude")) inputLng.value = params.get("longitude");
+
+      // Se não vieram coordenadas na URL, tenta pegar do GPS
+      if (!inputLat.value || !inputLng.value) {
+        getCoordinates();
+      }
+    });
+
+    btnGeo.addEventListener("click", getCoordinates);
+
+    // Envio assíncrono para o Google Forms
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      btnSubmit.disabled = true;
+      spinner.style.display = "inline-block";
+      btnText.textContent = "Enviando...";
+      statusMsg.style.display = "none";
+
+      // Monta o payload exatamente com os entry IDs do seu formulário
+      const formData = new URLSearchParams();
+      formData.append("entry.537691558", inputLocal.value.trim());
+      formData.append("entry.1135377561", inputLat.value.trim());
+      formData.append("entry.1960109342", inputLng.value.trim());
+
+      try {
+        await fetch(GOOGLE_FORM_ACTION, {
+          method: "POST",
+          mode: "no-cors", // Necessário para evitar bloqueio de CORS do Google Forms
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: formData.toString(),
+        });
+
+        // Com 'no-cors', se a promise resolveu sem cair no catch, o request foi entregue
+        showStatus("Registro enviado com sucesso para a planilha!", "success");
+        inputLocal.value = "";
+        btnGeo.textContent = "📍 Capturar Localização Atual";
+      } catch (err) {
+        console.error("Erro no envio:", err);
+        showStatus("Falha de rede ao enviar os dados. Verifique sua conexão.", "error");
+      } finally {
+        btnSubmit.disabled = false;
+        spinner.style.display = "none";
+        btnText.textContent = "Enviar Registro";
+      }
+    });
+  </script>
+</body>
+</html>
